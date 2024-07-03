@@ -15,7 +15,7 @@ CREATE TABLE `uploaders` (
   `spacy` text NOT NULL,
   `result` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 DROP TABLE IF EXISTS `users`;
@@ -29,7 +29,7 @@ CREATE TABLE `users` (
   `flag` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `users` (`id`, `username`, `password`, `role`, `name`, `photo`, `flag`) VALUES
 (1,	'admin',	'21232f297a57a5a743894a0e4a801fc3',	'ADMIN',	'Administrator',	'admin.png',	1),

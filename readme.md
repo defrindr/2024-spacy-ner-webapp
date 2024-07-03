@@ -14,7 +14,14 @@ git clone https://github.com/defrindr/2024-spacy-ner-webapp.git
 pip install -r requirements.txt
 ```
 3. Sesuaikan database pada file ```.flaskenv```
-4. Jalankan program
+4. Buka phpmyadmin, import file ```db_spacy.sql```
+5. Jalankan program
 ```sh
 flask run
+```
+6. Login dengan akun
+
+```
+> username: admin
+> password: admin
 ```

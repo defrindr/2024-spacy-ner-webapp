@@ -15,18 +15,16 @@ class Uploader(Base, db.Model):
     id = Column(Integer, primary_key=True)
     nama = Column(String(255))
     file = Column(String(255))
-    accuracy = Column(String(10), nullable=True)
-    total_data = Column(Integer, nullable=True)
-    total_benar = Column(Integer, nullable=True)
-    file_result = Column(String(255), nullable=True)
+    spacy = Column(Text(), nullable=True)
+    result = Column(Text(), nullable=True)
 
     def getPathFile(self):
-        return url_for("static", filename="uploads/source/" + self.file, _external=True)
+        return url_for("static", filename=self.file, _external=True)
     pass
 
     def getPathResult(self):
         return url_for(
-            "static", filename="uploads/result/" + self.file_result, _external=True)
+            "static", filename=self.spacy, _external=True)
     pass
 
 
@@ -43,12 +41,10 @@ def fetchOne(id):
 
 def assign(form):
     return Uploader(
-        nama=form['name'],
+        nama=form['nama'],
         file=form['file'],
-        accuracy=form['accuracy'],
-        total_data=form['total_data'],
-        total_benar=form['total_benar'],
-        file_result=form['file_result'],
+        spacy=form['spacy'],
+        result=form['result'],
     )
 
 

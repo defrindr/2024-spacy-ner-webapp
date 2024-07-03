@@ -10,7 +10,8 @@ from App.Utils.Validator import Validator
 import os
 from werkzeug.utils import secure_filename
 import time
-# from App.Core.sentiment import app_sentiment
+from App.Core.spacy import spacy_ner
+import json
 
 module = "admin.uploader"
 viewLayout = 'Admin/Uploader/'
@@ -65,8 +66,20 @@ def unduhtemplate():
     pass
 
 
-def show():
-    pass
+def show(id):
+    title = "Grafik Wilayah Kriminalitas"
+    data = Uploader.query.filter(Uploader.id == id).first()
+    dict_result = json.loads(data.result)
+    keys = list(dict_result.keys())
+    values = list(dict_result.values())
+    return render_template(
+        viewLayout + 'show.html',
+        title=title,
+        module=module,
+        data=data,
+        keys=keys,
+        values=values
+    )
 
 
 def create():
@@ -76,7 +89,6 @@ def create():
         title=title,
         module=module
     )
-
 
 
 def store():
@@ -107,19 +119,16 @@ def store():
         flash('Method Not Valid')
         return redirect(redirected_error)
 
-    predict = app_sentiment.predict(source_path+source_filename, result_path)
+    # print(source_filename)
+    source_file = source_path+source_filename
+    result_file = f"{result_path}{str(int(time.time()))}_result.json"
+    predict = spacy_ner.predict(source_file, result_file)
 
-    required_fields = ['name', 'file', 'accuracy',
-                       'total_data', 'total_benar', 'file_result']
+    required_fields = ["nama", "file", "spacy", "result"]
     form = request.form.to_dict()
-    form['file'] = source_filename
-    form['accuracy'] = predict['accuracy']
-    form['total_data'] = predict['total_data']
-    form['total_benar'] = predict['total_benar']
-    form['file_result'] = predict['result_file']
-
-    session = getSessionAuth()
-    form['user_id'] = session[SESS_AUTH_ID]
+    form['file'] = source_file.replace(os.getcwd()+'/App/Static', '')
+    form['spacy'] = result_file.replace(os.getcwd()+'/App/Static', '')
+    form['result'] = json.dumps(predict)
 
     app_validator = Validator()
     app_validator.required(form, required_fields)
@@ -139,13 +148,14 @@ def store():
     return
     pass
 
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def destroy(id):
-    UploaderInstance.destroy(id)
+    Uploader.query.filter(Uploader.id == id).delete()
     db.session.commit()
     flash('Data berhasil dihapus', 'info')
     return redirect(url_for(f'{module}.index'))

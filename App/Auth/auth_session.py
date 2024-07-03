@@ -27,7 +27,15 @@ def destroySessionAuth():
     session.pop(SESS_AUTH_ROLE)
 
 
+def isLogin():
+    if SESS_AUTH_ID in session:
+        return True
+    return False
+
+
 def loggedInUser():
+    if isLogin() == False:
+        return None
     id = session[SESS_AUTH_ID]
     return User.query.filter(
         User.flag == 1,

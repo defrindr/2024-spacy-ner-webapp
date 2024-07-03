@@ -72,19 +72,17 @@
             <tr>
               <td> {{ loop.index + (pagination.page * per_page - per_page) }} </td>
               <td> {{ row.nama }} </td>
-              <td> {{ row.accuracy }} </td>
-              <td> {{ row.total_data }} </td>
-              <td> {{ row.total_benar }} </td>
-              <td> {{ row.total_data - row.total_benar }} </td>
               <td>
                 <button class="mr-1 mb-1 btn btn-sm btn-warning btn-open-modal" data-url="{{row.getPathFile()}}"
                   data-title="Sumber untuk {{row.nama}}">
-                  <i class="fa fa-file"></i> Sumber
+                  <i class="fa fa-file"></i> Source
                 </button>
-                <button class="mr-1 mb-1 btn btn-sm btn-primary btn-open-modal" data-with-filter="true"
-                  data-url="{{row.getPathResult()}}" data-title="Hasil untuk {{row.nama}}">
-                  <i class="fa fa-file"></i> Hasil
-                </button>
+                <a class="mr-1 mb-1 btn btn-sm btn-primary" href="{{url_for(module+'.show', id=row.id)}}">
+                  <i class="fa fa-chart-pie"></i> Grafik
+                </a>
+                <a class="mr-1 mb-1 btn btn-sm btn-info" href="{{row.getPathResult()}}" target="_blank">
+                  <i class="fa fa-file"></i> Spacy
+                </a>
                 <form action="{{ url_for('admin.uploader.destroy', id=row.id) }}" method="post" class="d-inline"
                   onsubmit="return confirm('Are u sure to running this action ?')">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />

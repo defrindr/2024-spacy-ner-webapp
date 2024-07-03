@@ -3,6 +3,9 @@ from spacy.scorer import Scorer
 from spacy.training import Example
 import json
 import math
+import csv
+from spacy import displacy
+import time
 
 
 class SpacyNer:
@@ -10,6 +13,7 @@ class SpacyNer:
     nlp = None
     training_annotations = None
     test_annotations = None
+    chart_wilayah = {}
 
     def __init__(self):
         self.nlp = spacy.load('./App/SpacyNer/models/model-last/')
@@ -17,6 +21,7 @@ class SpacyNer:
     def init_app(self, app):
         self.app = app
         self.getSampleData()
+        self.checkProgram()
 
     def getSampleData(self):
         # Load training data
@@ -40,12 +45,13 @@ class SpacyNer:
               len_annotations-len_training_annotations}""")
 
     def checkProgram(self):
-        for text, annotations in test_annotations:
-            doc_pred = nlp(text)
+        examples = []
+        for text, annotations in self.test_annotations:
+            doc_pred = self.nlp(text)
             example = Example.from_dict(doc_pred, annotations)
             examples.append(example)
 
-        scorer = Scorer(nlp)
+        scorer = Scorer(self.nlp)
         scores = scorer.score(examples)
 
         print(f"Precision = {scores['ents_p']}")
@@ -67,7 +73,7 @@ class SpacyNer:
             total_entities += len(true_entities)
 
             doc = model(text)
-            pred_entities = get_entities(doc)
+            pred_entities = self.get_entities(doc)
 
             for entity in pred_entities:
                 ent = []
@@ -79,3 +85,63 @@ class SpacyNer:
 
         entity_accuracy = correct_entities / total_entities if total_entities > 0 else 0
         return entity_accuracy
+
+    def predict(self, source_file, target):
+        self.resetChart()
+        result = []
+        with open(source_file, mode='r', encoding="utf8") as csv_file:
+            csv_reader = csv.DictReader(csv_file)
+            for row in csv_reader:
+                # for text, annot in self.test_annotations:
+                # data = self.nlp(row['full_text'])
+                text = row['full_text']
+                doc = self.nlp(text)
+                entity = self.get_entities(doc)
+                result.append({
+                    'text': text,
+                    'entities': entity
+                })
+                self.kategorikanWilayah(entity)
+        with open(target, "w") as outfile:
+            json.dump(result, outfile)
+
+        return self.chart_wilayah
+
+    def resetChart(self):
+        self.chart_wilayah = {
+            'kabmalang': 0,
+            'lowokwaru': 0,
+            'klojen': 0,
+            'blimbing': 0,
+            'kedungkandang': 0,
+            'sukun': 0,
+        }
+
+    def kategorikanWilayah(self, entity):
+        wilayah = None
+        for ent in entity:
+            if ent[3] == 'LOCATION':
+                lokasi = ent[0].lower()
+                if "lowokwaru" in lokasi:
+                    wilayah = "lowokwaru"
+                    break
+                elif "klojen" in lokasi:
+                    wilayah = "klojen"
+                    break
+                elif "blimbing" in lokasi:
+                    wilayah = "blimbing"
+                    break
+                elif "kedungkandang" in lokasi:
+                    wilayah = "kedungkandang"
+                    break
+                elif "kedung kandang" in lokasi:
+                    wilayah = "kedungkandang"
+                    break
+                elif "sukun" in lokasi:
+                    wilayah = "sukun"
+                    break
+
+        if wilayah == None:
+            self.chart_wilayah['kabmalang'] += 1
+        else:
+            self.chart_wilayah[wilayah] += 1

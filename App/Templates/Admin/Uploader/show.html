@@ -1,0 +1,57 @@
+{% extends 'Admin/layout.html' %} {% block title %} {{title}} {% endblock %} {%
+block content %} {% import "Admin/_components/macros.html" as macros %}
+{{macros.breadcrumb(title)}} {{macros.alert()}}
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <a href="{{url_for(module + '.index')}}" class="btn btn-primary mb-2">
+          <i class="mdi mdi-back"></i> Kembali
+        </a>
+      </div>
+      <div class="card-body">
+        <canvas id="chart"></canvas>
+        <pre class="text-black mt-5">
+          {{ data.result|safe }}
+        </pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block js %} {{super()}}
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"
+  integrity="sha512-L0Shl7nXXzIlBSUUPpxrokqq4ojqgZFQczTYlGjzONGTDAcLremjwaWv5A+EDLnxhQzY5xUZPWLOLqYRkY0Cbw=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script>
+  const ctx = document.getElementById("chart");
+
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: {{ keys|safe }},
+      datasets: [
+        {
+          label: "# Wilayah Kriminalitas",
+          data: {{ values|safe }},
+          borderWidth: 1,
+          borderColor: 'rgb(75, 192, 75)',
+          backgroundColor: '#6253A3',
+          tension: 0.1
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+</script>
+{% endblock %}

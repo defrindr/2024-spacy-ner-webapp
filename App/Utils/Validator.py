@@ -10,7 +10,7 @@ class Validator():
 
     def required(self, form, fields):
         for field in fields:
-            if (form[field] is None):
+            if field not in form:
                 self.errors.append(f"{field} Wajib Di isi")
                 pass
         pass

@@ -1,0 +1,51 @@
+{% extends 'Admin/layout.html' %} {% block title %} {{title}} {% endblock %} {%
+block content %} {% import "Admin/_components/macros.html" as macros %}
+{{macros.breadcrumb(title)}} {{macros.alert()}}
+
+<div class="row">
+  <div class="col-md-12 mb-2">
+    <div class="card">
+      <div class="card-header">
+        <a href="{{url_for( module + '.index')}}" class="btn btn-danger mb-2">
+          <i class="mdi mdi-back"></i> Kembali
+        </a>
+        <a
+          href="{{url_for( module + '.unduhtemplate')}}"
+          target="_blank"
+          class="btn btn-primary mb-2"
+        >
+          <i class="mdi mdi-file"></i> Unduh Template
+        </a>
+      </div>
+      <div class="card-body">
+        <form
+          action="{{url_for(module + '.store')}}"
+          class="form"
+          method="post"
+          onsubmit="return confirm('Apakah Anda Yakin ?')"
+          enctype="multipart/form-data"
+        >
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+          <div class="form-group">
+            <label for="name">Nama Uploader</label>
+            <input type="text" class="form-control" name="name" required />
+          </div>
+
+          <div class="form-group">
+            <label for="name">File</label>
+            <input type="file" class="form-control" name="file" required />
+          </div>
+
+          <div class="form-group">
+            <button class="btn btn-primary">
+              <i class="ion ion-md-save"></i>
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

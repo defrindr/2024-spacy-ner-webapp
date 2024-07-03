@@ -1,0 +1,204 @@
+{% extends 'Admin/layout.html' %}
+
+{% block title %} {{title}} {% endblock %}
+
+
+
+{% block content %}
+
+{% import "Admin/_components/macros.html" as macros %}
+{{macros.breadcrumb(title)}}
+{{macros.alert()}}
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <a href="{{url_for(module + '.create')}}" class="btn btn-primary mb-2">
+          <i class="mdi mdi-plus"></i> Tambah
+        </a>
+      </div>
+      <div class="card-body">
+        <form action="{{url_for(module + '.index')}}" class="form">
+          <div class="row">
+            <div class="col-md-5">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <select name="per_page" id="per_page" class="form-control">
+                      {% for value in range(5, 25, 5) %}
+                      <option value="{{value}}" {% if per_page==value %} selected {% endif %}>
+                        {{value}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-7">
+              <div class="row">
+                <div class="col-md-7">
+                  <div class="form-group">
+                    <input type="text" class="form-control" name="search" value="{{ search }}" placeholder="Cari ...">
+                  </div>
+                </div>
+                <div class="col-md-5">
+                  <div class="form-group">
+                    <button class="btn btn-primary btn-block">
+                      <i class="ion ion-ios-search"></i> Cari ...
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+        <p>
+          Menampilkan data {{ start_data + 1 }} sampai {{ start_data + len_items }} dari {{ total_data }}
+        </p>
+        <table class="table table-hover table-bordered">
+          <thead>
+            {% for column_name in headers %}
+            <th>{{column_name}}</th>
+            {% endfor %}
+          </thead>
+          <tbody>
+            {% if len_items == 0 %}
+            <tr>
+              <td colspan="6" class="text-center">Data Kosong</td>
+            </tr>
+            {% endif %}
+            {% for row in pagination.items %}
+            <tr>
+              <td> {{ loop.index + (pagination.page * per_page - per_page) }} </td>
+              <td> {{ row.nama }} </td>
+              <td> {{ row.accuracy }} </td>
+              <td> {{ row.total_data }} </td>
+              <td> {{ row.total_benar }} </td>
+              <td> {{ row.total_data - row.total_benar }} </td>
+              <td>
+                <button class="mr-1 mb-1 btn btn-sm btn-warning btn-open-modal" data-url="{{row.getPathFile()}}"
+                  data-title="Sumber untuk {{row.nama}}">
+                  <i class="fa fa-file"></i> Sumber
+                </button>
+                <button class="mr-1 mb-1 btn btn-sm btn-primary btn-open-modal" data-with-filter="true"
+                  data-url="{{row.getPathResult()}}" data-title="Hasil untuk {{row.nama}}">
+                  <i class="fa fa-file"></i> Hasil
+                </button>
+                <form action="{{ url_for('admin.uploader.destroy', id=row.id) }}" method="post" class="d-inline"
+                  onsubmit="return confirm('Are u sure to running this action ?')">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                  <button class="mr-1 mb-1 btn btn-sm btn-danger">
+                    <i class="fa fa-trash"></i> Hapus
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            {% if pagination.has_prev %}
+            <li class="page-item">
+              <a class="page-link"
+                href="{{url_for( module + '.index', page=pagination.page-1,search=search, per_page = per_page)}}"
+                aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+                <span class="sr-only">Previous</span>
+              </a>
+            </li>
+            {% endif %}
+            {% if pagination.pages != 1 %}
+            {% for page_num in pagination.iter_pages() %}
+            <li class="page-item {% if page_num == pagination.page%} active {% endif %}">
+              <a class="page-link"
+                href="{{url_for( module + '.index', page=page_num,search=search, per_page = per_page)}}">{{page_num}}</a>
+            </li>
+            {% endfor %}
+            {% endif %}
+            {% if pagination.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="{{url_for( module + '.index', page=pagination.page+1,search=search)}}"
+                aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+                <span class="sr-only">Next</span>
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <a id="dokumen_link" href="" class="btn btn-primary mb-3" target="_blank">Unduh Dokumen</a>
+
+        <select name="" id="select-by-hasil" class="form-control">
+          <option value="">Semua</option>
+          <option value="True">True</option>
+          <option value="False">False</option>
+        </select>
+        <div id="cvsTable"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+{{super()}}
+<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="{{url_for('static', filename='js/csv2table.js')}}"></script>
+<script>
+
+  let csvTable = new Csv2Table({
+    id: 'cvsTable',
+    source: ''
+  })
+
+
+  $('.btn-open-modal').on('click', (event) => {
+    event.preventDefault();
+    $('#exampleModal').modal('show')
+    let elementEvent = event.target;
+    let source = elementEvent.getAttribute('data-url');
+    let title = elementEvent.getAttribute('data-title');
+
+    let withFilter = elementEvent.getAttribute('data-with-filter');
+    let filter = document.querySelector('#select-by-hasil');
+    filter.addEventListener('change', function (evt) {
+      csvTable.filter(evt.target.value)
+      csvTable.update({ source })
+    })
+    if (withFilter) {
+      filter.setAttribute('style', 'display: block')
+    } else {
+      filter.setAttribute('style', 'display: none')
+    }
+
+    $('#dokumen_link').attr('href', source)
+    $('#exampleModalLabel').text(title)
+
+    csvTable.update({ source })
+
+  });
+</script>
+{% endblock %}

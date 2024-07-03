@@ -1,0 +1,28 @@
+{% macro breadcrumb(title) %}
+<!-- start page title -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">{{ config.APP_NAME
+                            }}</a></li>
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard </a></li>
+                    <li class="breadcrumb-item active">{{ title }}</li>
+                </ol>
+            </div>
+            <!-- <h4 class="page-title">{{ title }}</h4> -->
+        </div>
+    </div>
+</div>
+<!-- end page title -->
+{% endmacro %}
+
+{% macro alert() %}
+{% for message in get_flashed_messages(with_categories=True) %}
+<div class="alert alert-{{ message[0] }}">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    {{ message[1] }}
+</div>
+{% endfor %}
+{% endmacro %}

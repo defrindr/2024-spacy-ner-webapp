@@ -16,7 +16,7 @@ import json
 module = "admin.uploader"
 viewLayout = 'Admin/Uploader/'
 
-ALLOWED_EXTENSIONS = {'csv'}
+ALLOWED_EXTENSIONS = {'json'}
 
 
 def index():
@@ -62,7 +62,7 @@ def index():
 
 def unduhtemplate():
     path = app.config['BASE_PATH'] + '/App/Static/uploads'
-    return send_from_directory(path, 'template.csv')
+    return send_from_directory(path, 'template.json')
     pass
 
 
@@ -70,15 +70,22 @@ def show(id):
     title = "Grafik Wilayah Kriminalitas"
     data = Uploader.query.filter(Uploader.id == id).first()
     dict_result = json.loads(data.result)
-    keys = list(dict_result.keys())
-    values = list(dict_result.values())
+    wilayah = dict_result['wilayah']
+    wilayah_keys = list(wilayah.keys())
+    wilayah_values = list(wilayah.values())
+    kejahatan = dict_result['kejahatan']
+    kejahatan_keys = list(kejahatan.keys())
+    kejahatan_values = list(kejahatan.values())
     return render_template(
         viewLayout + 'show.html',
         title=title,
         module=module,
-        data=data,
-        keys=keys,
-        values=values
+        wilayah=wilayah,
+        wilayah_keys=wilayah_keys,
+        wilayah_values=wilayah_values,
+        kejahatan=kejahatan,
+        kejahatan_keys=kejahatan_keys,
+        kejahatan_values=kejahatan_values,
     )
 
 
@@ -92,7 +99,6 @@ def create():
 
 
 def store():
-    print(11111)
     redirected_error = url_for(f'{module}.create')
     path = app.config['BASE_PATH'] + '/App/Static/uploads'
     source_path = path + '/source/'
@@ -144,8 +150,6 @@ def store():
 
     flash('Data telah ditambahkan', 'info')
     return redirect(url_for(f'{module}.index'))
-
-    return
     pass
 
 

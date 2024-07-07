@@ -3,7 +3,7 @@ block content %} {% import "Admin/_components/macros.html" as macros %}
 {{macros.breadcrumb(title)}} {{macros.alert()}}
 
 <div class="row">
-  <div class="col-md-12">
+  <div class="col-md-6 mb-4">
     <div class="card">
       <div class="card-header">
         <a href="{{url_for(module + '.index')}}" class="btn btn-primary mb-2">
@@ -11,9 +11,20 @@ block content %} {% import "Admin/_components/macros.html" as macros %}
         </a>
       </div>
       <div class="card-body">
-        <canvas id="chart"></canvas>
+        <canvas id="wilayah"></canvas>
         <pre class="text-black mt-5">
-          {{ data.result|safe }}
+          {{ wilayah|safe }}
+        </pre>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header"></div>
+      <div class="card-body">
+        <canvas id="kejahatan"></canvas>
+        <pre class="text-black mt-5">
+          {{ kejahatan|safe }}
         </pre>
       </div>
     </div>
@@ -28,16 +39,41 @@ block content %} {% import "Admin/_components/macros.html" as macros %}
   referrerpolicy="no-referrer"
 ></script>
 <script>
-  const ctx = document.getElementById("chart");
+  const ctx = document.getElementById("wilayah");
 
   new Chart(ctx, {
     type: "line",
     data: {
-      labels: {{ keys|safe }},
+      labels: {{ wilayah_keys|safe }},
       datasets: [
         {
           label: "# Wilayah Kriminalitas",
-          data: {{ values|safe }},
+          data: {{ wilayah_values|safe }},
+          borderWidth: 1,
+          borderColor: 'rgb(75, 192, 75)',
+          backgroundColor: '#6253A3',
+          tension: 0.1
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+  const ctx2 = document.getElementById("kejahatan");
+
+  new Chart(ctx2, {
+    type: "line",
+    data: {
+      labels: {{ kejahatan_keys|safe }},
+      datasets: [
+        {
+          label: "# Tindak Kriminalitas",
+          data: {{ kejahatan_values|safe }},
           borderWidth: 1,
           borderColor: 'rgb(75, 192, 75)',
           backgroundColor: '#6253A3',

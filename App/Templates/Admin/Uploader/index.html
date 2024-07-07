@@ -73,10 +73,12 @@
               <td> {{ loop.index + (pagination.page * per_page - per_page) }} </td>
               <td> {{ row.nama }} </td>
               <td>
-                <button class="mr-1 mb-1 btn btn-sm btn-warning btn-open-modal" data-url="{{row.getPathFile()}}"
-                  data-title="Sumber untuk {{row.nama}}">
+                <!-- <button class="mr-1 mb-1 btn btn-sm btn-warning btn-open-modal" data-url="{{row.getPathFile()}}"
+                  data-title="Sumber untuk {{row.nama}}"> -->
+                  <a class="mr-1 mb-1 btn btn-sm btn-info" href="{{row.getPathFile()}}" target="_blank">
                   <i class="fa fa-file"></i> Source
-                </button>
+                  </a>
+                <!-- </button> -->
                 <a class="mr-1 mb-1 btn btn-sm btn-primary" href="{{url_for(module+'.show', id=row.id)}}">
                   <i class="fa fa-chart-pie"></i> Grafik
                 </a>

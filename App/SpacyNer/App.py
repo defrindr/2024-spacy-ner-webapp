@@ -14,6 +14,7 @@ class SpacyNer:
     training_annotations = None
     test_annotations = None
     chart_wilayah = {}
+    chart_kejahatan = {}
 
     def __init__(self):
         self.nlp = spacy.load('./App/SpacyNer/models/model-last/')
@@ -86,14 +87,12 @@ class SpacyNer:
         entity_accuracy = correct_entities / total_entities if total_entities > 0 else 0
         return entity_accuracy
 
-    def predict(self, source_file, target):
+    def predict_csv(self, source_file, target):
         self.resetChart()
         result = []
         with open(source_file, mode='r', encoding="utf8") as csv_file:
             csv_reader = csv.DictReader(csv_file)
             for row in csv_reader:
-                # for text, annot in self.test_annotations:
-                # data = self.nlp(row['full_text'])
                 text = row['full_text']
                 doc = self.nlp(text)
                 entity = self.get_entities(doc)
@@ -107,7 +106,37 @@ class SpacyNer:
 
         return self.chart_wilayah
 
+    def predict(self, source_file, target):
+        self.resetChart()
+        result = []
+        with open(source_file, mode='r', encoding="utf8") as file:
+            annotations = json.loads('\n'.join(file.readlines()))
+            for annotation in annotations:
+                doc = self.nlp(annotation['text'])
+                entity = self.get_entities(doc)
+                result.append({
+                    'text': annotation['text'],
+                    'entities': entity
+                })
+                self.kategorikanWilayah(entity)
+                self.kategorikanKejahatan(entity)
+        with open(target, "w") as outfile:
+            json.dump(result, outfile)
+
+        return {
+            'wilayah': self.chart_wilayah,
+            'kejahatan': self.chart_kejahatan,
+        }
+
     def resetChart(self):
+        self.chart_kejahatan = {
+            'narkoba': 0,
+            'pembunuhan': 0,
+            'pemerkosaan': 0,
+            'pencurian': 0,
+            'penipuan': 0,
+            'lainnya': 0
+        }
         self.chart_wilayah = {
             'kabmalang': 0,
             'lowokwaru': 0,
@@ -145,3 +174,62 @@ class SpacyNer:
             self.chart_wilayah['kabmalang'] += 1
         else:
             self.chart_wilayah[wilayah] += 1
+
+    def kategorikanKejahatan(self, entity):
+        kejahatan = None
+        for ent in entity:
+            if ent[3] == 'CRIME':
+                tindakan = ent[0].lower()
+                if "curi" in tindakan:
+                    kejahatan = "pencurian"
+                    break
+                if "maling" in tindakan:
+                    kejahatan = "pencurian"
+                    break
+                if "hilang" in tindakan:
+                    kejahatan = "pencurian"
+                    break
+                elif "obat" in tindakan:
+                    kejahatan = "narkoba"
+                    break
+                elif "bandar" in tindakan:
+                    kejahatan = "narkoba"
+                    break
+                elif "kurir" in tindakan:
+                    kejahatan = "narkoba"
+                    break
+                elif "sabu" in tindakan:
+                    kejahatan = "narkoba"
+                    break
+                elif "perkosa" in tindakan:
+                    kejahatan = "pemerkosaan"
+                    break
+                elif "pemerkosaan" in tindakan:
+                    kejahatan = "pemerkosaan"
+                    break
+                elif "cabul" in tindakan:
+                    kejahatan = "pemerkosaan"
+                    break
+                elif "cabul" in tindakan:
+                    kejahatan = "pemerkosaan"
+                    break
+                elif "bejat" in tindakan:
+                    kejahatan = "pemerkosaan"
+                    break
+                elif "bunuh" in tindakan:
+                    kejahatan = "pembunuhan"
+                    break
+                elif "tewas" in tindakan:
+                    kejahatan = "pembunuhan"
+                    break
+                elif "penipu" in tindakan:
+                    kejahatan = "penipuan"
+                    break
+                elif "tipu" in tindakan:
+                    kejahatan = "penipuan"
+                    break
+
+        if kejahatan is not None:
+            self.chart_kejahatan[kejahatan] += 1
+        else:
+            self.chart_kejahatan['lainnya'] += 1

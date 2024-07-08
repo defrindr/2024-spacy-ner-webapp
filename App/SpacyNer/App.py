@@ -6,6 +6,8 @@ import math
 import csv
 from spacy import displacy
 import time
+import pandas as pd
+from .Clean import Clean
 
 
 class SpacyNer:
@@ -23,6 +25,7 @@ class SpacyNer:
         self.app = app
         self.getSampleData()
         self.checkProgram()
+        self.cleanClass = Clean()
 
     def getSampleData(self):
         # Load training data
@@ -105,6 +108,22 @@ class SpacyNer:
             json.dump(result, outfile)
 
         return self.chart_wilayah
+
+    def cleaner_csv(self, source_file, target):
+        print('start')
+        df = pd.read_csv(source_file)
+        print('readfile')
+        df = df[['full_text']]
+        df['text_filtering'] = df.full_text.apply(self.cleanClass.cleaning)
+        df['casefolding'] = df.text_filtering.apply(self.cleanClass.casefolding)
+        df['tokenisasi'] = df.casefolding.apply(self.cleanClass.tokenisasi)
+        df['filtering'] = df.tokenisasi.apply(self.cleanClass.filtering)
+        df['stemming'] = df.filtering.apply(self.cleanClass.stemming)
+        df['ready'] = df.stemming.apply(self.cleanClass.ready)
+        print('cleaned')
+        df.to_csv(target)
+        print('save')
+        return True
 
     def predict(self, source_file, target):
         self.resetChart()

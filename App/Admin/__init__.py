@@ -3,6 +3,7 @@ from App.Admin.middleware import CheckIsLoggedAdmin
 from App.Extensions.routes import Routes
 from App.Admin.Uploader import Module as UploaderModule
 from App.Admin.Cleaner import Module as CleanerModule
+from App.Admin.Crawler import Module as CrawlerModule
 from flask import Blueprint, render_template
 
 Module = Blueprint('admin', __name__, template_folder="../Templates/Admin")
@@ -14,6 +15,7 @@ registerRoute.get("/", controller.index)
 
 Module.register_blueprint(UploaderModule, url_prefix="/uploader")
 Module.register_blueprint(CleanerModule, url_prefix="/cleaner")
+Module.register_blueprint(CrawlerModule, url_prefix="/crawler")
 
 # @Module.errorhandler(Exception)
 # def handle_exception(e):

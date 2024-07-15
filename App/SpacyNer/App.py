@@ -128,21 +128,37 @@ class SpacyNer:
     def predict(self, source_file, target):
         self.resetChart()
         result = []
+        correct_entities = 0
+        total_entities = 0
         with open(source_file, mode='r', encoding="utf8") as file:
             annotations = json.loads('\n'.join(file.readlines()))
-            for annotation in annotations:
-                doc = self.nlp(annotation['text'])
-                entity = self.get_entities(doc)
+            for text,annotation in annotations['annotations']:
+                true_entities = annotation['entities']
+                total_entities += len(true_entities)
+
+                doc = self.nlp(text)
+                pred_entities = self.get_entities(doc)
                 result.append({
-                    'text': annotation['text'],
-                    'entities': entity
+                    'text': text,
+                    'entities': pred_entities
                 })
-                self.kategorikanWilayah(entity)
-                self.kategorikanKejahatan(entity)
+                self.kategorikanWilayah(pred_entities)
+                self.kategorikanKejahatan(pred_entities)
+
+                for entity in pred_entities:
+                    ent = []
+                    ent.append(entity[1])
+                    ent.append(entity[2])
+                    ent.append(entity[3])
+                    if ent in true_entities:
+                        correct_entities += 1
+
+            entity_accuracy = correct_entities / total_entities if total_entities > 0 else 0
         with open(target, "w") as outfile:
             json.dump(result, outfile)
 
         return {
+            'accuracy': entity_accuracy,
             'wilayah': self.chart_wilayah,
             'kejahatan': self.chart_kejahatan,
         }

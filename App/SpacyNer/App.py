@@ -164,107 +164,25 @@ class SpacyNer:
         }
 
     def resetChart(self):
-        self.chart_kejahatan = {
-            'narkoba': 0,
-            'pembunuhan': 0,
-            'pemerkosaan': 0,
-            'pencurian': 0,
-            'penipuan': 0,
-            'lainnya': 0
-        }
-        self.chart_wilayah = {
-            'kabmalang': 0,
-            'lowokwaru': 0,
-            'klojen': 0,
-            'blimbing': 0,
-            'kedungkandang': 0,
-            'sukun': 0,
-        }
+        self.chart_kejahatan = {}
+        self.chart_wilayah = {}
 
     def kategorikanWilayah(self, entity):
         wilayah = None
         for ent in entity:
             if ent[3] == 'LOCATION':
                 lokasi = ent[0].lower()
-                if "lowokwaru" in lokasi:
-                    wilayah = "lowokwaru"
-                    break
-                elif "klojen" in lokasi:
-                    wilayah = "klojen"
-                    break
-                elif "blimbing" in lokasi:
-                    wilayah = "blimbing"
-                    break
-                elif "kedungkandang" in lokasi:
-                    wilayah = "kedungkandang"
-                    break
-                elif "kedung kandang" in lokasi:
-                    wilayah = "kedungkandang"
-                    break
-                elif "sukun" in lokasi:
-                    wilayah = "sukun"
-                    break
-
-        if wilayah == None:
-            self.chart_wilayah['kabmalang'] += 1
-        else:
-            self.chart_wilayah[wilayah] += 1
+                if lokasi in self.chart_wilayah:
+                    self.chart_wilayah[lokasi] += 1
+                else:
+                    self.chart_wilayah[lokasi] = 1
 
     def kategorikanKejahatan(self, entity):
         kejahatan = None
         for ent in entity:
             if ent[3] == 'CRIME':
                 tindakan = ent[0].lower()
-                if "curi" in tindakan:
-                    kejahatan = "pencurian"
-                    break
-                if "maling" in tindakan:
-                    kejahatan = "pencurian"
-                    break
-                if "hilang" in tindakan:
-                    kejahatan = "pencurian"
-                    break
-                elif "obat" in tindakan:
-                    kejahatan = "narkoba"
-                    break
-                elif "bandar" in tindakan:
-                    kejahatan = "narkoba"
-                    break
-                elif "kurir" in tindakan:
-                    kejahatan = "narkoba"
-                    break
-                elif "sabu" in tindakan:
-                    kejahatan = "narkoba"
-                    break
-                elif "perkosa" in tindakan:
-                    kejahatan = "pemerkosaan"
-                    break
-                elif "pemerkosaan" in tindakan:
-                    kejahatan = "pemerkosaan"
-                    break
-                elif "cabul" in tindakan:
-                    kejahatan = "pemerkosaan"
-                    break
-                elif "cabul" in tindakan:
-                    kejahatan = "pemerkosaan"
-                    break
-                elif "bejat" in tindakan:
-                    kejahatan = "pemerkosaan"
-                    break
-                elif "bunuh" in tindakan:
-                    kejahatan = "pembunuhan"
-                    break
-                elif "tewas" in tindakan:
-                    kejahatan = "pembunuhan"
-                    break
-                elif "penipu" in tindakan:
-                    kejahatan = "penipuan"
-                    break
-                elif "tipu" in tindakan:
-                    kejahatan = "penipuan"
-                    break
-
-        if kejahatan is not None:
-            self.chart_kejahatan[kejahatan] += 1
-        else:
-            self.chart_kejahatan['lainnya'] += 1
+                if tindakan in self.chart_kejahatan:
+                    self.chart_kejahatan[tindakan] += 1
+                else:
+                    self.chart_kejahatan[tindakan] = 1
